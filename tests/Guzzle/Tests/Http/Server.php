@@ -27,7 +27,11 @@ use Guzzle\Http\Client;
 class Server
 {
     const DEFAULT_PORT = 8124;
+    const DEFAULT_HOST = '127.0.0.1';
     const REQUEST_DELIMITER = "\n----[request]\n";
+
+    /** @var string Host that the server will listen on */
+    private $host;
 
     /** @var int Port that the server will listen on */
     private $port;
@@ -42,10 +46,12 @@ class Server
      * Create a new scripted server
      *
      * @param int $port Port to listen on (defaults to 8124)
+     * @param string $port Port to listen on (defaults to 8124)
      */
-    public function __construct($port = null)
+    public function __construct($port = null, $host = null)
     {
         $this->port = $port ?: self::DEFAULT_PORT;
+        $this->host = $host ?: self::DEFAULT_PORT;
         $this->client = new Client($this->getUrl());
         register_shutdown_function(array($this, 'stop'));
     }
@@ -119,7 +125,7 @@ class Server
      */
     public function getUrl()
     {
-        return 'http://127.0.0.1:' . $this->getPort() . '/';
+        return 'http://' . $this->getHost() . ':' . $this->getPort() . '/';
     }
 
     /**
@@ -130,6 +136,16 @@ class Server
     public function getPort()
     {
         return $this->port;
+    }
+
+    /**
+     * Get the host that the server is listening on
+     *
+     * @return int
+     */
+    public function getHost()
+    {
+        return $this->host;
     }
 
     /**
@@ -162,7 +178,7 @@ class Server
     {
         if (!$this->isRunning()) {
             exec('node ' . __DIR__ . \DIRECTORY_SEPARATOR
-                . 'server.js ' . $this->port
+                . 'server.js ' . $this->port . ' false ' . $this->getHost()
                 . ' >> /tmp/server.log 2>&1 &');
             // Wait at most 5 seconds for the server the setup before
             // proceeding.

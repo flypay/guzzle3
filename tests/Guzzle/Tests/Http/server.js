@@ -35,6 +35,7 @@ var GuzzleServer = function(port, log) {
 
     this.port = port;
     this.log = log;
+    this.host = host;
     this.responses = [];
     this.requests = [];
     var that = this;
@@ -129,7 +130,7 @@ var GuzzleServer = function(port, log) {
                 receivedRequest(request, req, res);
             });
         });
-        that.server.listen(port, "127.0.0.1");
+        that.server.listen(port, this.host);
 
         if (this.log) {
             console.log("Server running at http://127.0.0.1:8124/");
@@ -140,7 +141,8 @@ var GuzzleServer = function(port, log) {
 // Get the port from the arguments
 port = process.argv.length >= 3 ? process.argv[2] : 8124;
 log = process.argv.length >= 4 ? process.argv[3] : false;
+host = process.argv.length >= 5 ? process.argv[4] : '127.0.0.1';
 
 // Start the server
-server = new GuzzleServer(port, log);
+server = new GuzzleServer(port, log, host);
 server.start();
